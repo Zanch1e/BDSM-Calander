@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Shared Scheduler</title>
+</head>
+<body>
+    <h1>Our Shared Schedule & Tasks</h1>
+
+    <!-- Form to add tasks -->
+    <form id="taskForm">
+        <input type="text" id="nameInput" placeholder="Your Name" required>
+        <input type="text" id="taskInput" placeholder="Task description" required>
+        <button type="submit">Add Task</button>
+    </form>
+
+    <h2>Live Task List:</h2>
+    <ul id="taskList">
+        <li>Loading tasks...</li>
+    </ul>
+
+    <!-- Firebase Scripts (using CDN so you don't need to install anything) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addFirestore, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // TODO: Replace this with your own Firebase configuration from the console!
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const form = document.getElementById('taskForm');
+        const taskList = document.getElementById('taskList');
+
+        // 1. Handle adding a new task when the form is submitted
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('nameInput').value;
+            const task = document.getElementById('taskInput').value;
+
+            try {
+                await addDoc(collection(db, "schedules"), {
+                    name: name,
+                    task: task,
+                    createdAt: new Date()
+                });
+                form.reset(); // Clear the form inputs
+            } catch (error) {
+                console.error("Error adding task: ", error);
+            }
+        });
+
+        // 2. Real-time listener: Updates the page instantly whenever data changes in Firebase
+        onSnapshot(collection(db, "schedules"), (snapshot) => {
+            taskList.innerHTML = ""; // Clear current list
+            
+            if (snapshot.empty) {
+                taskList.innerHTML = "<li>No tasks added yet!</li>";
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${data.name}</strong>: ${data.task}`;
+                taskList.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
