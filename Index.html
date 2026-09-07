@@ -20,12 +20,13 @@
         <li>Loading tasks...</li>
     </ul>
 
-    <!-- Firebase Scripts (using CDN so you don't need to install anything) -->
+    <!-- Firebase Scripts (using CDN) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addFirestore, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        // FIXED: Removed the non-existent 'addFirestore' import which was crashing the script
+        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // TODO: Replace this with your own Firebase configuration from the console!
+        // IMPORTANT: Replace this placeholder config with your actual credentials from the Firebase Console!
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_AUTH_DOMAIN",
