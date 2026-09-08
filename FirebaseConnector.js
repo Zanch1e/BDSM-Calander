@@ -4,12 +4,13 @@ import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "ht
 
 // 1. Paste YOUR own Firebase configuration details here from your Firebase Console
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_://firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_://appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyByr1eMl8hQoJwY-Of2XLAUPM90RzwoOPQ",
+  authDomain: "bdsm-calender.firebaseapp.com",
+  projectId: "bdsm-calender",
+  storageBucket: "bdsm-calender.firebasestorage.app",
+  messagingSenderId: "775837531192",
+  appId: "1:775837531192:web:cdc8cb4db8372ab0993acd",
+  measurementId: "G-G5ZTLWRDFX"
 };
 
 // Initialize Firebase and Firestore database
