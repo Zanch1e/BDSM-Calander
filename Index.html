@@ -3,80 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Shared Scheduler</title>
+    <title>Shared Scheduler</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; }
+        form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input, button { padding: 10px; font-size: 16px; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 10px; background: #f4f4f4; margin-bottom: 5px; border-radius: 4px; }
+    </style>
 </head>
 <body>
-    <h1>Our Shared Schedule & Tasks</h1>
 
-    <!-- Form to add tasks -->
-    <form id="taskForm">
-        <input type="text" id="nameInput" placeholder="Your Name" required>
-        <input type="text" id="taskInput" placeholder="Task description" required>
-        <button type="submit">Add Task</button>
+    <h2>Shared Schedule</h2>
+
+    <!-- Form to add a new task -->
+    <form id="scheduleForm">
+        <input type="text" id="taskInput" placeholder="Enter task/event" required>
+        <input type="date" id="dateInput" required>
+        <button type="submit">Add to Schedule</button>
     </form>
 
-    <h2>Live Task List:</h2>
-    <ul id="taskList">
-        <li>Loading tasks...</li>
-    </ul>
+    <!-- List where tasks will appear in real-time -->
+    <ul id="scheduleList"></ul>
 
-    <!-- Firebase Scripts (using CDN) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        // FIXED: Removed the non-existent 'addFirestore' import which was crashing the script
-        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // IMPORTANT: Replace this placeholder config with your actual credentials from the Firebase Console!
-        const firebaseConfig = {
-  apiKey: "AIzaSyByr1eMl8hQoJwY-Of2XLAUPM90RzwoOPQ",
-  authDomain: "bdsm-calender.firebaseapp.com",
-  projectId: "bdsm-calender",
-  storageBucket: "bdsm-calender.firebasestorage.app",
-  messagingSenderId: "775837531192",
-  appId: "1:775837531192:web:cdc8cb4db8372ab0993acd",
-  measurementId: "G-G5ZTLWRDFX"
-};
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        const form = document.getElementById('taskForm');
-        const taskList = document.getElementById('taskList');
-
-        // 1. Handle adding a new task when the form is submitted
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('nameInput').value;
-            const task = document.getElementById('taskInput').value;
-
-            try {
-                await addDoc(collection(db, "schedules"), {
-                    name: name,
-                    task: task,
-                    createdAt: new Date()
-                });
-                form.reset(); // Clear the form inputs
-            } catch (error) {
-                console.error("Error adding task: ", error);
-            }
-        });
-
-        // 2. Real-time listener: Updates the page instantly whenever data changes in Firebase
-        onSnapshot(collection(db, "schedules"), (snapshot) => {
-            taskList.innerHTML = ""; // Clear current list
-            
-            if (snapshot.empty) {
-                taskList.innerHTML = "<li>No tasks added yet!</li>";
-                return;
-            }
-
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const li = document.createElement('li');
-                li.innerHTML = `<strong>${data.name}</strong>: ${data.task}`;
-                taskList.appendChild(li);
-            });
-        });
-    </script>
+    <!-- This links your HTML to your JavaScript file in the same folder -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
