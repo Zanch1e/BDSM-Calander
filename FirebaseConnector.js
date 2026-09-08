@@ -1,7 +1,9 @@
-// Import Firebase modules directly from the official CDN with correct paths
+// Import Firebase modules directly from the official CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-// 1. Paste YOUR own Firebase configuration details here from your Firebase Console
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+// Your Firebase configuration details
 const firebaseConfig = {
   apiKey: "AIzaSyByr1eMl8hQoJwY-Of2XLAUPM90RzwoOPQ",
   authDomain: "bdsm-calender.firebaseapp.com",
@@ -12,47 +14,81 @@ const firebaseConfig = {
   measurementId: "G-G5ZTLWRDFX"
 };
 
-// Initialize Firebase and Firestore database
+// Initialize Firebase, Firestore, and Auth
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // Get references to HTML elements
+const loginSection = document.getElementById('loginSection');
+const loginForm = document.getElementById('loginForm');
+const nicknameInput = document.getElementById('nicknameInput');
+const passwordInput = document.getElementById('passwordInput');
+const appSection = document.getElementById('appSection');
+const displayUser = document.getElementById('displayUser');
+
 const scheduleForm = document.getElementById('scheduleForm');
 const taskInput = document.getElementById('taskInput');
 const dateInput = document.getElementById('dateInput');
 const scheduleList = document.getElementById('scheduleList');
 
-// 2. LISTEN FOR REAL-TIME UPDATES (The magic part)
-// This code runs automatically whenever you OR the other person changes the database
+let currentUser = "";
+
+// Handle Nickname + Password Authentication
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nickname = nicknameInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
+    const fakeEmail = `${nickname}@scheduler.app`;
+
+    try {
+        // Try logging in existing account
+        await signInWithEmailAndPassword(auth, fakeEmail, password);
+        currentUser = nickname;
+        transitionToApp();
+    } catch (error) {
+        // If account doesn't exist, create it automatically
+        try {
+            await createUserWithEmailAndPassword(auth, fakeEmail, password);
+            currentUser = nickname;
+            transitionToApp();
+        } catch (createError) {
+            alert("Login failed: " + createError.message);
+        }
+    }
+});
+
+function transitionToApp() {
+    displayUser.textContent = currentUser;
+    loginSection.classList.add('hidden');
+    appSection.classList.remove('hidden');
+}
+
+// Real-time listener for tasks
 const q = query(collection(db, "shared_schedule"), orderBy("date", "asc"));
 
 onSnapshot(q, (snapshot) => {
-    // Clear the list before rebuilding it with new data
     scheduleList.innerHTML = "";
     
-    // Loop through every document in your database collection
     snapshot.forEach((doc) => {
         const item = doc.data();
-        
-        // Create a new list item for the screen
         const li = document.createElement('li');
-        li.textContent = `${item.date} - ${item.task}`;
+        li.textContent = `${item.date} - ${item.task} (by ${item.author || 'Anonymous'})`;
         scheduleList.appendChild(li);
     });
 });
 
-// 3. SEND DATA TO FIREBASE (When you click 'Add to Schedule')
+// Send data to Firebase when a task is submitted
 scheduleForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Stop the webpage from refreshing
+    e.preventDefault();
 
     try {
-        // Add a new document to the "shared_schedule" collection
         await addDoc(collection(db, "shared_schedule"), {
             task: taskInput.value,
-            date: dateInput.value
+            date: dateInput.value,
+            author: currentUser
         });
 
-        // Clear the input fields for the next entry
         taskInput.value = "";
         dateInput.value = "";
     } catch (error) {
