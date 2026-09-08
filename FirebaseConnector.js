@@ -34,20 +34,30 @@ const scheduleList = document.getElementById('scheduleList');
 
 let currentUser = "";
 
-// Handle Nickname + Password Authentication
+// Handle Nickname + Password Authentication with Allowed List
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nickname = nicknameInput.value.trim().toLowerCase();
     const password = passwordInput.value;
+
+    // 1. DEFINE YOUR TWO ALLOWED NICKNAMES HERE
+    const allowedNicknames = ["name1", "name2"];
+
+    // 2. CHECK IF THE TYPED NICKNAME IS ON THE ALLOWED LIST
+    if (!allowedNicknames.includes(nickname)) {
+        alert("Access denied: This nickname is not authorized.");
+        return; 
+    }
+
     const fakeEmail = `${nickname}@scheduler.app`;
 
     try {
-        // Try logging in existing account
+        // Try logging into an existing account
         await signInWithEmailAndPassword(auth, fakeEmail, password);
         currentUser = nickname;
         transitionToApp();
     } catch (error) {
-        // If account doesn't exist, create it automatically
+        // If the allowed nickname hasn't been created yet, create it automatically
         try {
             await createUserWithEmailAndPassword(auth, fakeEmail, password);
             currentUser = nickname;
