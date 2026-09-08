@@ -6,6 +6,7 @@
     <title>Shared Scheduler</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; }
+        .hidden { display: none !important; }
         form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
         input, button { padding: 10px; font-size: 16px; }
         ul { list-style-type: none; padding: 0; }
@@ -14,19 +15,28 @@
 </head>
 <body>
 
-    <h2>Shared Schedule</h2>
+    <!-- Login Section -->
+    <div id="loginSection">
+        <h2>Enter Your Nickname & Password</h2>
+        <form id="loginForm">
+            <input type="text" id="nicknameInput" placeholder="Nickname" required>
+            <input type="password" id="passwordInput" placeholder="Password" required>
+            <button type="submit">Login / Sign Up</button>
+        </form>
+    </div>
 
-    <!-- Form to add a new task -->
-    <form id="scheduleForm">
-        <input type="text" id="taskInput" placeholder="Enter task/event" required>
-        <input type="date" id="dateInput" required>
-        <button type="submit">Add to Schedule</button>
-    </form>
+    <!-- Main Scheduler Section (Hidden by default) -->
+    <div id="appSection" class="hidden">
+        <h2>Shared Schedule (<span id="displayUser"></span>)</h2>
+        <form id="scheduleForm">
+            <input type="text" id="taskInput" placeholder="Enter task/event" required>
+            <input type="date" id="dateInput" required>
+            <button type="submit">Add to Schedule</button>
+        </form>
+        <ul id="scheduleList"></ul>
+    </div>
 
-    <!-- List where tasks will appear in real-time -->
-    <ul id="scheduleList"></ul>
-
-    <!-- This links your HTML to your JavaScript file in the same folder -->
+    <!-- Links to your JavaScript file -->
     <script type="module" src="FirebaseConnector.js"></script>
 </body>
 </html>
