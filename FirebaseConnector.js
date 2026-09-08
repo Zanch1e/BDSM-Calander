@@ -1,7 +1,6 @@
-// Import Firebase modules directly from the official CDN
-import { initializeApp } from "https://gstatic.com";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://gstatic.com";
-
+// Import Firebase modules directly from the official CDN with correct paths
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 // 1. Paste YOUR own Firebase configuration details here from your Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyByr1eMl8hQoJwY-Of2XLAUPM90RzwoOPQ",
