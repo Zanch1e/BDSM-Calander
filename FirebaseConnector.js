@@ -37,7 +37,7 @@ loginForm.addEventListener('submit', (e) => {
     const nickname = nicknameInput.value.trim().toLowerCase();
 
     // 1. DEFINE YOUR TWO ALLOWED NICKNAMES HERE
-    const allowedNicknames = ["Herrer", "Herrers sexdukke"];
+    const allowedNicknames = ["herrer", "herrers sexdukke"];
 
     // 2. CHECK IF THE TYPED NICKNAME IS ON THE ALLOWED LIST
     if (!allowedNicknames.includes(nickname)) {
