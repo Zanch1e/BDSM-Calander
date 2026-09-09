@@ -1,7 +1,6 @@
 // Import Firebase modules directly from the official CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 // Your Firebase configuration details
 const firebaseConfig = {
@@ -14,16 +13,14 @@ const firebaseConfig = {
   measurementId: "G-G5ZTLWRDFX"
 };
 
-// Initialize Firebase, Firestore, and Auth
+// Initialize Firebase and Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
 // Get references to HTML elements
 const loginSection = document.getElementById('loginSection');
 const loginForm = document.getElementById('loginForm');
 const nicknameInput = document.getElementById('nicknameInput');
-const passwordInput = document.getElementById('passwordInput');
 const appSection = document.getElementById('appSection');
 const displayUser = document.getElementById('displayUser');
 
@@ -34,11 +31,10 @@ const scheduleList = document.getElementById('scheduleList');
 
 let currentUser = "";
 
-// Handle Nickname + Password Authentication with Allowed List
-loginForm.addEventListener('submit', async (e) => {
+// Handle Nickname-Only Login
+loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const nickname = nicknameInput.value.trim().toLowerCase();
-    const password = passwordInput.value;
 
     // 1. DEFINE YOUR TWO ALLOWED NICKNAMES HERE
     const allowedNicknames = ["name1", "name2"];
@@ -49,30 +45,12 @@ loginForm.addEventListener('submit', async (e) => {
         return; 
     }
 
-    const fakeEmail = `${nickname}@scheduler.app`;
-
-    try {
-        // Try logging into an existing account
-        await signInWithEmailAndPassword(auth, fakeEmail, password);
-        currentUser = nickname;
-        transitionToApp();
-    } catch (error) {
-        // If the allowed nickname hasn't been created yet, create it automatically
-        try {
-            await createUserWithEmailAndPassword(auth, fakeEmail, password);
-            currentUser = nickname;
-            transitionToApp();
-        } catch (createError) {
-            alert("Login failed: " + createError.message);
-        }
-    }
-});
-
-function transitionToApp() {
+    // If allowed, save user and show app
+    currentUser = nickname;
     displayUser.textContent = currentUser;
     loginSection.classList.add('hidden');
     appSection.classList.remove('hidden');
-}
+});
 
 // Real-time listener for tasks
 const q = query(collection(db, "shared_schedule"), orderBy("date", "asc"));
