@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyByr1eMl8hQoJwY-Of2XLAUPM90RzwoOPQ",
   authDomain: "bdsm-calender.firebaseapp.com",
@@ -11,65 +12,56 @@ const firebaseConfig = {
   measurementId: "G-G5ZTLWRDFX"
 };
 
+// Initialize Firebase & Firestore
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Allowed Usernames
+const allowedUser1 = "Herrer";
+const allowedUser2 = "Herres lille grissebasse";
+
+// DOM Elements
 const loginSection = document.getElementById('loginSection');
 const loginForm = document.getElementById('loginForm');
 const nicknameInput = document.getElementById('nicknameInput');
 const appSection = document.getElementById('appSection');
-const displayUserHerrer = document.getElementById('displayUserHerrer');
-const displayUserGris = document.getElementById('displayUserGris');
+const displayUser = document.getElementById('displayUser');
 
 const scheduleForm = document.getElementById('scheduleForm');
 const taskInput = document.getElementById('taskInput');
 const dateInput = document.getElementById('dateInput');
+const typeSelect = document.getElementById('typeSelect');
 const calendarGrid = document.getElementById('calendarGrid');
 const monthYearHeading = document.getElementById('currentMonthYear');
 
-let currentUserHerrer = "";
-let currentUserGris = "";
+// State Variables
+let currentUser = "";
 let allTasks = [];
 let displayedDate = new Date();
 
-// Handle login
-// List of allowed usernames
-const allowedGris = ["Herres lille grissebasse"];
-const allowedHerrer = ["Herrer"];
-
-// Handle login
+// Handle Login with Role-Based Permissions
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const enteredName = nicknameInput.value.trim();
-    
-    // Check if the entered name matches one of the allowed usernames (case-insensitive)
-    const validGris = allowedGris.find(
-        user => user.toLowerCase() === enteredName.toLowerCase()
-    );
-    const validHerrer = allowedHerrer.find(
-        user => user.toLowerCase() === enteredName.toLowerCase()
-    );
 
-
-    if (!validGris) {
-        alert("Adgang nægtet: Du skal indtaste et gyldigt brugernavn.");
-        return;
-    }
-    if (!validHerrer) {
+    if (enteredName.toLowerCase() === allowedUser1.toLowerCase()) {
+        currentUser = allowedUser1;
+        typeSelect?.classList.remove('hidden'); // Show event/task selector for User 1
+    } else if (enteredName.toLowerCase() === allowedUser2.toLowerCase()) {
+        currentUser = allowedUser2;
+        typeSelect?.classList.add('hidden');    // Hide selector for User 2 (events only)
+    } else {
         alert("Adgang nægtet: Du skal indtaste et gyldigt brugernavn.");
         return;
     }
 
-    currentUserHerrer = validHerrer;
-    currentUserGris = validGris;
-    displayUser.textContent = currentUserHerrer;
-    displayUser.textContent = currentUserGris
+    displayUser.textContent = currentUser;
     loginSection.classList.add('hidden');
     appSection.classList.remove('hidden');
     renderCalendar();
 });
 
-// Navigation buttons
+// Navigation Buttons
 document.getElementById('prevMonth')?.addEventListener('click', () => {
     displayedDate.setMonth(displayedDate.getMonth() - 1);
     renderCalendar();
@@ -80,14 +72,14 @@ document.getElementById('nextMonth')?.addEventListener('click', () => {
     renderCalendar();
 });
 
-// Firebase Real-time Listener (Stores document IDs)
+// Real-Time Firebase Listener
 try {
     const q = query(collection(db, "shared_schedule"), orderBy("date", "asc"));
     onSnapshot(q, (snapshot) => {
         allTasks = [];
         snapshot.forEach((documentItem) => {
             allTasks.push({
-                id: documentItem.id, // Grab Firebase document ID
+                id: documentItem.id,
                 ...documentItem.data()
             });
         });
@@ -99,23 +91,29 @@ try {
     console.error("Firebase Connection Error:", err);
 }
 
-// Add new event
+// Add New Document to Firestore
 scheduleForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Default to "event" if the dropdown is hidden or unavailable
+    const isTypeSelectorVisible = typeSelect && !typeSelect.classList.contains('hidden');
+    const entryType = isTypeSelectorVisible ? typeSelect.value : "event";
+
     try {
         await addDoc(collection(db, "shared_schedule"), {
             task: taskInput.value,
             date: dateInput.value,
-            author: currentUser
+            author: currentUser,
+            type: entryType
         });
         taskInput.value = "";
         dateInput.value = "";
     } catch (error) {
-        console.error("Error adding document: ", error);
+        console.error("Fejl ved gemning: ", error);
     }
 });
 
-// Calendar Grid Generation
+// Calendar Rendering Logic
 function renderCalendar() {
     if (!calendarGrid || !monthYearHeading) return;
 
@@ -139,14 +137,14 @@ function renderCalendar() {
     const adjustedFirstDay = (firstDayIndex === 0 ? 6 : firstDayIndex - 1);
     const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Padding cells
+    // Padding Cells for Previous Month
     for (let i = 0; i < adjustedFirstDay; i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'day-cell other-month';
         calendarGrid.appendChild(emptyCell);
     }
 
-    // Days with tasks
+    // Days with Entries
     for (let day = 1; day <= totalDaysInMonth; day++) {
         const dayCell = document.createElement('div');
         dayCell.className = 'day-cell';
@@ -163,13 +161,17 @@ function renderCalendar() {
         const daysTasks = allTasks.filter(t => t.date === dateKey);
         daysTasks.forEach(t => {
             const badge = document.createElement('div');
-            badge.className = 'event-badge';
+            const isTask = t.type === "task";
+
+            // Apply red task styling if entry type is 'task'
+            badge.className = `event-badge ${isTask ? 'task-badge' : ''}`;
+            
             badge.innerHTML = `
-                <span>${t.task} (${t.author || 'Anonym'})</span>
-                <button class="delete-btn" title="Slet aftale">✕</button>
+                <span>${isTask ? '📌 ' : ''}${t.task} (${t.author || 'Anonym'})</span>
+                <button class="delete-btn" title="Slet">✕</button>
             `;
 
-            // Delete event handler
+            // Delete Event Listener
             const deleteBtn = badge.querySelector('.delete-btn');
             deleteBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
