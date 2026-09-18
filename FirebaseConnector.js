@@ -18,7 +18,8 @@ const loginSection = document.getElementById('loginSection');
 const loginForm = document.getElementById('loginForm');
 const nicknameInput = document.getElementById('nicknameInput');
 const appSection = document.getElementById('appSection');
-const displayUser = document.getElementById('displayUser');
+const displayUserHerrer = document.getElementById('displayUserHerrer');
+const displayUserGris = document.getElementById('displayUserGris');
 
 const scheduleForm = document.getElementById('scheduleForm');
 const taskInput = document.getElementById('taskInput');
@@ -26,14 +27,15 @@ const dateInput = document.getElementById('dateInput');
 const calendarGrid = document.getElementById('calendarGrid');
 const monthYearHeading = document.getElementById('currentMonthYear');
 
-let currentUser = "";
+let currentUserHerrer = "";
+let currentUserGris = "";
 let allTasks = [];
 let displayedDate = new Date();
 
 // Handle login
 // List of allowed usernames
-const allowedGris = ["herres lille grissebasse"];
-const allowedHerrer = ["herrer"];
+const allowedGris = ["Herres lille grissebasse"];
+const allowedHerrer = ["Herrer"];
 
 // Handle login
 loginForm.addEventListener('submit', (e) => {
