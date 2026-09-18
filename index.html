@@ -28,8 +28,32 @@
         .day-number { font-size: 12px; font-weight: bold; color: #3c4043; text-align: right; padding-right: 4px; margin-bottom: 4px; }
         .other-month { background-color: #f8f9fa; }
 
-        /* Event Chips */
-        .event-badge { background-color: #e8f0fe; color: #1967d2; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-bottom: 3px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        /* Event Badges & Delete Buttons */
+        .event-badge { 
+            background-color: #e8f0fe; 
+            color: #1967d2; 
+            padding: 3px 6px; 
+            border-radius: 4px; 
+            font-size: 11px; 
+            margin-bottom: 3px; 
+            font-weight: 500; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        .event-badge:hover { background-color: #d2e3fc; }
+        .delete-btn { 
+            background: none; 
+            border: none; 
+            color: #d93025; 
+            font-weight: bold; 
+            cursor: pointer; 
+            padding: 0 0 0 5px; 
+            font-size: 12px; 
+            line-height: 1;
+        }
+        .delete-btn:hover { color: #a50e0e; }
     </style>
 </head>
 <body>
