@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyByr1eMl8hQoJwY-Of2XLAUPM90RzwoOPQ",
@@ -34,32 +34,43 @@ let displayedDate = new Date();
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     currentUser = nicknameInput.value.trim();
+    if (!currentUser) return;
+    
     displayUser.textContent = currentUser;
     loginSection.classList.add('hidden');
     appSection.classList.remove('hidden');
     renderCalendar();
 });
 
-// Month Navigation Listeners
-document.getElementById('prevMonth').addEventListener('click', () => {
+// Navigation buttons
+document.getElementById('prevMonth')?.addEventListener('click', () => {
     displayedDate.setMonth(displayedDate.getMonth() - 1);
     renderCalendar();
 });
 
-document.getElementById('nextMonth').addEventListener('click', () => {
+document.getElementById('nextMonth')?.addEventListener('click', () => {
     displayedDate.setMonth(displayedDate.getMonth() + 1);
     renderCalendar();
 });
 
-// Firebase Real-time Listener
-const q = query(collection(db, "shared_schedule"), orderBy("date", "asc"));
-onSnapshot(q, (snapshot) => {
-    allTasks = [];
-    snapshot.forEach((doc) => {
-        allTasks.push(doc.data());
+// Firebase Real-time Listener (Stores document IDs)
+try {
+    const q = query(collection(db, "shared_schedule"), orderBy("date", "asc"));
+    onSnapshot(q, (snapshot) => {
+        allTasks = [];
+        snapshot.forEach((documentItem) => {
+            allTasks.push({
+                id: documentItem.id, // Grab Firebase document ID
+                ...documentItem.data()
+            });
+        });
+        renderCalendar();
+    }, (error) => {
+        console.error("Firebase Snapshot Error:", error);
     });
-    renderCalendar();
-});
+} catch (err) {
+    console.error("Firebase Connection Error:", err);
+}
 
 // Add new event
 scheduleForm.addEventListener('submit', async (e) => {
@@ -77,63 +88,77 @@ scheduleForm.addEventListener('submit', async (e) => {
     }
 });
 
-// Calendar Grid Generation Function
+// Calendar Grid Generation
 function renderCalendar() {
-    if (!appSection.classList.contains('hidden')) {
-        calendarGrid.innerHTML = "";
-        
-        const year = displayedDate.getFullYear();
-        const month = displayedDate.getMonth();
+    if (!calendarGrid || !monthYearHeading) return;
 
-        const monthNames = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
-        monthYearHeading.textContent = `${monthNames[month]} ${year}`;
+    calendarGrid.innerHTML = "";
+    
+    const year = displayedDate.getFullYear();
+    const month = displayedDate.getMonth();
 
-        // Add Weekday Headers (Mandag - Søndag)
-        const daysOfWeek = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
-        daysOfWeek.forEach(day => {
-            const header = document.createElement('div');
-            header.className = 'day-header';
-            header.textContent = day;
-            calendarGrid.appendChild(header);
-        });
+    const monthNames = ["Januar", "Februar", "Marts", "April", "Maj", "Juni", "Juli", "August", "September", "Oktober", "November", "December"];
+    monthYearHeading.textContent = `${monthNames[month]} ${year}`;
 
-        // Date Calculations
-        const firstDayIndex = new Date(year, month, 1).getDay();
-        const adjustedFirstDay = (firstDayIndex === 0 ? 6 : firstDayIndex - 1); // Align Monday = 0
-        const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysOfWeek = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
+    daysOfWeek.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'day-header';
+        header.textContent = day;
+        calendarGrid.appendChild(header);
+    });
 
-        // 1. Render empty padding cells before Day 1
-        for (let i = 0; i < adjustedFirstDay; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'day-cell other-month';
-            calendarGrid.appendChild(emptyCell);
-        }
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const adjustedFirstDay = (firstDayIndex === 0 ? 6 : firstDayIndex - 1);
+    const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
 
-        // 2. Render actual calendar days
-        for (let day = 1; day <= totalDaysInMonth; day++) {
-            const dayCell = document.createElement('div');
-            dayCell.className = 'day-cell';
+    // Padding cells
+    for (let i = 0; i < adjustedFirstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'day-cell other-month';
+        calendarGrid.appendChild(emptyCell);
+    }
 
-            const numLabel = document.createElement('div');
-            numLabel.className = 'day-number';
-            numLabel.textContent = day;
-            dayCell.appendChild(numLabel);
+    // Days with tasks
+    for (let day = 1; day <= totalDaysInMonth; day++) {
+        const dayCell = document.createElement('div');
+        dayCell.className = 'day-cell';
 
-            // Format YYYY-MM-DD string to match Firebase task dates
-            const formattedMonth = String(month + 1).padStart(2, '0');
-            const formattedDay = String(day).padStart(2, '0');
-            const dateKey = `${year}-${formattedMonth}-${formattedDay}`;
+        const numLabel = document.createElement('div');
+        numLabel.className = 'day-number';
+        numLabel.textContent = day;
+        dayCell.appendChild(numLabel);
 
-            // Filter tasks for this specific date
-            const daysTasks = allTasks.filter(t => t.date === dateKey);
-            daysTasks.forEach(t => {
-                const badge = document.createElement('div');
-                badge.className = 'event-badge';
-                badge.textContent = `${t.task} (${t.author || 'Anonym'})`;
-                dayCell.appendChild(badge);
+        const formattedMonth = String(month + 1).padStart(2, '0');
+        const formattedDay = String(day).padStart(2, '0');
+        const dateKey = `${year}-${formattedMonth}-${formattedDay}`;
+
+        const daysTasks = allTasks.filter(t => t.date === dateKey);
+        daysTasks.forEach(t => {
+            const badge = document.createElement('div');
+            badge.className = 'event-badge';
+            badge.innerHTML = `
+                <span>${t.task} (${t.author || 'Anonym'})</span>
+                <button class="delete-btn" title="Slet aftale">✕</button>
+            `;
+
+            // Delete event handler
+            const deleteBtn = badge.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (confirm(`Vil du slette "${t.task}"?`)) {
+                    try {
+                        await deleteDoc(doc(db, "shared_schedule", t.id));
+                    } catch (error) {
+                        console.error("Fejl ved sletning: ", error);
+                        alert("Kunne ikke slette aftalen. Tjek dine Firebase-regler.");
+                    }
+                }
             });
 
-            calendarGrid.appendChild(dayCell);
-        }
+            dayCell.appendChild(badge);
+        });
+
+        calendarGrid.appendChild(dayCell);
     }
 }
