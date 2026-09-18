@@ -31,11 +31,25 @@ let allTasks = [];
 let displayedDate = new Date();
 
 // Handle login
+// List of allowed usernames
+const allowedUsers = ["Herrer", "Herres lille grissebasse"];
+
+// Handle login
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    currentUser = nicknameInput.value.trim();
-    if (!currentUser) return;
+    const enteredName = nicknameInput.value.trim();
     
+    // Check if the entered name matches one of the allowed usernames (case-insensitive)
+    const validUser = allowedUsers.find(
+        user => user.toLowerCase() === enteredName.toLowerCase()
+    );
+
+    if (!validUser) {
+        alert("Adgang nægtet: Du skal indtaste et gyldigt brugernavn.");
+        return;
+    }
+
+    currentUser = validUser;
     displayUser.textContent = currentUser;
     loginSection.classList.add('hidden');
     appSection.classList.remove('hidden');
