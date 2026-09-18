@@ -79,6 +79,12 @@
             align-items: center;
             position: relative;
         }
+        /* Red styling for tasks */
+        .event-badge.task-badge { 
+        background-color: #fce8e6; 
+        color: #c5221f; 
+        border: 1px solid #f28b82;
+        }
         .event-badge:hover { background-color: #d2e3fc; }
         .delete-btn { 
             background: none; 
@@ -127,10 +133,17 @@
                 <div class="card">
                     <h2>Delt Kalender (<span id="displayUser"></span>)</h2>
                     <form id="scheduleForm">
-                        <input type="text" id="taskInput" placeholder="Opret aftale" required style="flex: 2;">
-                        <input type="date" id="dateInput" required style="flex: 1;">
-                        <button type="submit">Tilføj til kalender</button>
-                    </form>
+                    <input type="text" id="taskInput" placeholder="Opret aftale eller opgave" required style="flex: 2;">
+                    <input type="date" id="dateInput" required style="flex: 1;">
+    
+                    <!-- Type selection (Hidden by default for restricted users) -->
+                    <select id="typeSelect" style="flex: 1;">
+                    <option value="event">Aftale</option>
+                    <option value="task">Opgave (Rød)</option>
+                    </select>
+    
+    <button type="submit">Tilføj</button>
+</form>
                 </div>
 
                 <div class="card">
