@@ -3,30 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-
     <title>Delt Kalender</title>
     <style>
         body { 
-                font-family: 'Segoe UI', Arial, sans-serif; 
-                max-width: 850px; 
-                margin: 20px auto; 
-                padding: 20px; 
-    
-                /* Background Image Settings */
-                background-image: url('C:\Users\Bruger\Desktop\BDSM-Calender\BDSM.jpg'); /* Path to your image file */
-                background-size: cover;                  /* Scales image to cover the full screen */
-                background-position: center;            /* Centers the image */
-                background-repeat: no-repeat;           /* Prevents repeating/tiling */
-                background-attachment: fixed;           /* Keeps background fixed when scrolling */
-            }
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            max-width: 1100px; /* Increased width to fit both image and calendar */
+            margin: 20px auto; 
+            padding: 20px; 
+            background-color: #f8f9fa; 
+        }
         .hidden { display: none !important; }
 
-        .card { background: black; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        /* Black Box Card Styling */
+        .card {
+            background-color: black;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
 
-        .card h2 { color: #ffffff; margin-top: 0; }
-        .calendar-header h3 { color: #9F2B68; margin: 0; }
+        .card h2 { margin-top: 0; }
 
+        /* Layout Container for Side-by-Side */
+        .app-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        /* Image Styling */
+        .side-image {
+            width: 300px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* Right Side Content */
+        .calendar-content {
+            flex: 1; /* Takes up remaining space */
+        }
 
         form { display: flex; gap: 10px; flex-wrap: wrap; }
         input, button { padding: 10px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
@@ -35,6 +52,7 @@
 
         /* Monthly Calendar Navigation */
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .calendar-header h3 { color: #9F2B68; margin: 0; }
         .nav-btn { background-color: transparent; color: #9F2B68; font-size: 18px; padding: 5px 12px; border: 1px solid #dadce0; }
         .nav-btn:hover { background-color: #f1f3f4; color: #000; }
 
@@ -45,7 +63,7 @@
         /* Day Cells */
         .day-cell { min-height: 90px; background: rebeccapurple; border-right: 1px solid #9F2B68; border-bottom: 1px solid #9F2B68; padding: 4px; box-sizing: border-box; }
         .day-number { font-size: 12px; font-weight: bold; color: #fefefe; text-align: right; padding-right: 4px; margin-bottom: 4px; }
-        .other-month { background-color: #f8f9fa; }
+        .other-month { background-color: #333; /* Darkened for the black theme */ }
 
         /* Event Badges & Delete Buttons */
         .event-badge { 
@@ -73,6 +91,18 @@
             line-height: 1;
         }
         .delete-btn:hover { color: #a50e0e; }
+
+        /* Make it look good on mobile phones */
+        @media (max-width: 800px) {
+            .app-layout {
+                flex-direction: column;
+                align-items: center;
+            }
+            .side-image {
+                width: 100%;
+                max-width: 400px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -86,22 +116,33 @@
     </div>
 
     <div id="appSection" class="hidden">
-        <div class="card">
-            <h2>Delt Kalender (<span id="displayUser"></span>)</h2>
-            <form id="scheduleForm">
-                <input type="text" id="taskInput" placeholder="Opret aftale" required style="flex: 2;">
-                <input type="date" id="dateInput" required style="flex: 1;">
-                <button type="submit">Tilføj til kalender</button>
-            </form>
-        </div>
+        <!-- New Layout Wrapper -->
+        <div class="app-layout">
+            
+            <!-- Left Side Image -->
+            <img src="BDSM-Calender/BDSM.jpg" alt="Kalender Billede" class="side-image">
 
-        <div class="card">
-            <div class="calendar-header">
-                <button class="nav-btn" id="prevMonth">&lt;</button>
-                <h3 id="currentMonthYear">Måned År</h3>
-                <button class="nav-btn" id="nextMonth">&gt;</button>
+            <!-- Right Side Calendar Area -->
+            <div class="calendar-content">
+                <div class="card">
+                    <h2>Delt Kalender (<span id="displayUser"></span>)</h2>
+                    <form id="scheduleForm">
+                        <input type="text" id="taskInput" placeholder="Opret aftale" required style="flex: 2;">
+                        <input type="date" id="dateInput" required style="flex: 1;">
+                        <button type="submit">Tilføj til kalender</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="calendar-header">
+                        <button class="nav-btn" id="prevMonth">&lt;</button>
+                        <h3 id="currentMonthYear">Måned År</h3>
+                        <button class="nav-btn" id="nextMonth">&gt;</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </div>
             </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
+
         </div>
     </div>
 
