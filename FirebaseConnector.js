@@ -32,8 +32,8 @@ let displayedDate = new Date();
 
 // Handle login
 // List of allowed usernames
-const allowedGris = ["Herres lille grissebasse"];
-const allowedHerrer = ["Herrer"];
+const allowedGris = ["herres lille grissebasse"];
+const allowedHerrer = ["herrer"];
 
 // Handle login
 loginForm.addEventListener('submit', (e) => {
