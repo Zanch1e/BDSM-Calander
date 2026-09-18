@@ -32,7 +32,8 @@ let displayedDate = new Date();
 
 // Handle login
 // List of allowed usernames
-const allowedUsers = ["Herrer", "Herres lille grissebasse"];
+const allowedGris = ["Herres lille grissebasse"];
+const allowedHerrer = ["Herrer"];
 
 // Handle login
 loginForm.addEventListener('submit', (e) => {
@@ -40,17 +41,27 @@ loginForm.addEventListener('submit', (e) => {
     const enteredName = nicknameInput.value.trim();
     
     // Check if the entered name matches one of the allowed usernames (case-insensitive)
-    const validUser = allowedUsers.find(
+    const validGris = allowedGris.find(
+        user => user.toLowerCase() === enteredName.toLowerCase()
+    );
+    const validHerrer = allowedHerrer.find(
         user => user.toLowerCase() === enteredName.toLowerCase()
     );
 
-    if (!validUser) {
+
+    if (!validGris) {
+        alert("Adgang nægtet: Du skal indtaste et gyldigt brugernavn.");
+        return;
+    }
+    if (!validHerrer) {
         alert("Adgang nægtet: Du skal indtaste et gyldigt brugernavn.");
         return;
     }
 
-    currentUser = validUser;
-    displayUser.textContent = currentUser;
+    currentUserHerrer = validHerrer;
+    currentUserGris = validGris;
+    displayUser.textContent = currentUserHerrer;
+    displayUser.textContent = currentUserGris
     loginSection.classList.add('hidden');
     appSection.classList.remove('hidden');
     renderCalendar();
