@@ -17,8 +17,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // Allowed Usernames
-const allowedUser1 = "Herrer";
-const allowedUser2 = "Herres lille grissebasse";
+const allowedUser1 = "Daddy";
+const allowedUser2 = "Daddys lille køter";
 
 // DOM Elements
 const loginSection = document.getElementById('loginSection');
