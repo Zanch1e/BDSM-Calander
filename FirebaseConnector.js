@@ -191,3 +191,19 @@ function renderCalendar() {
         calendarGrid.appendChild(dayCell);
     }
 }
+
+deleteEventBtn.addEventListener('click', async () => {
+    if (currentlyViewedEventId) {
+        if (confirm("Er du sikker på, at du vil slette dette?")) {
+            try {
+                await deleteDoc(doc(db, "shared_schedule", currentlyViewedEventId));
+                // Go back to the calendar automatically after deleting
+                detailView.classList.add('hidden');
+                calendarView.classList.remove('hidden');
+            } catch (error) {
+                console.error("Fejl ved sletning: ", error);
+                alert("Kunne ikke slette. Tjek rettigheder.");
+            }
+        }
+    }
+});
