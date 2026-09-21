@@ -129,7 +129,7 @@
             <img src="hjerte.png" alt="Kalender Billede" class="side-image">
 
             <!-- Right Side Calendar Area -->
-            <div class="calendar-content">
+            <div class="calendarView">
                 <div class="card">
                     <h2>Delt Kalender (<span id="displayUser"></span>)</h2>
                     <form id="scheduleForm">
@@ -155,7 +155,18 @@
                     <div class="calendar-grid" id="calendarGrid"></div>
                 </div>
             </div>
+<!-- THE DETAIL VIEW (Hidden by default) -->
+        <div id="detailView" class="card hidden">
+            <button id="backBtn" class="nav-btn" style="margin-bottom: 20px;">&larr; Tilbage til kalender</button>
+            <h2 id="detailTitle" style="margin-top: 0;"></h2>
+            <p><strong>Dato: </strong><span id="detailDate"></span></p>
+            <p><strong>Oprettet af: </strong><span id="detailAuthor"></span></p>
+            
+            <!-- We moved the delete button here so it's easy to press on mobile -->
+            <button id="deleteEventBtn" style="background-color: #dc3545; margin-top: 20px; width: 100%;">Slet denne</button>
+        </div>
 
+    </div>
         </div>
     </div>
 
