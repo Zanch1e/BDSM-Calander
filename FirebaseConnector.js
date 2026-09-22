@@ -73,8 +73,10 @@ document.getElementById('nextMonth')?.addEventListener('click', () => {
 });
 
 // Real-Time Firebase Listener
+// Real-Time Firebase Listener
 try {
     const q = query(collection(db, "shared_schedule"), orderBy("date", "asc"));
+
     onSnapshot(q, (snapshot) => {
         allTasks = [];
         snapshot.forEach((documentItem) => {
@@ -83,14 +85,32 @@ try {
                 ...documentItem.data()
             });
         });
+
+        // 1. Refresh the calendar grid with the new data
         renderCalendar();
+
+        // 2. Real-time update for the Detail View (if open)
+        if (currentlyViewedEventId) {
+            const currentTask = allTasks.find(t => t.id === currentlyViewedEventId);
+
+            if (currentTask) {
+                // Keep the open detail screen fresh if another user edits it
+                detailTitle.textContent = currentTask.task;
+                detailDate.textContent = currentTask.date;
+                detailAuthor.textContent = currentTask.author || 'Anonym';
+            } else {
+                // If another user slet (deleted) this task while you had it open, auto-close the screen
+                detailView.classList.add('hidden');
+                calendarView.classList.remove('hidden');
+                currentlyViewedEventId = null;
+            }
+        }
     }, (error) => {
         console.error("Firebase Snapshot Error:", error);
     });
 } catch (err) {
     console.error("Firebase Connection Error:", err);
 }
-
 // Add New Document to Firestore
 scheduleForm.addEventListener('submit', async (e) => {
     e.preventDefault();
